@@ -3,7 +3,7 @@ import {
   LayoutDashboard,
   UtensilsCrossed
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const SideNavigation = ({ menu }) => {
   const links = [
@@ -21,12 +21,13 @@ const SideNavigation = ({ menu }) => {
   return (
     <>
       <aside className="p-4 border-r border-line">
-        <img
-          src={`${imgPath}/jollibee-logo.webp`}
-          alt=""
-          className="w-[80%] mx-auto mt-2"
-        />
-
+        <Link to= "/">
+          <img
+            src={`${imgPath}/real-chef.png`}
+            alt=""
+            className="w-[80%] mx-auto mt-2"
+          />
+        </Link>
         <nav>
           <ul className="mt-10">
             {links.map((item, key) => (

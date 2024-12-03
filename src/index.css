@@ -40,7 +40,7 @@
   }
 
   body {
-    @apply text-body font-['Nunito'] leading-tight overflow-x-hidden;
+    @apply text-body font-['Nunito'] leading-tight overflow-x-hidden leading-relaxed;
   }
 
   h1,
@@ -50,7 +50,7 @@
   h5 {
     @apply font-bold;
   }
-  h1 {
+  /* h1 {
     @apply text-4xl mb-5;
   }
   h2 {
@@ -64,6 +64,25 @@
   }
   h5 {
     @apply text-lg mb-5;
+  } */
+
+  h1 {
+    @apply text-[clamp(35px,_6vw,_50px)];
+  }
+  h2 {
+    @apply text-[clamp(25px,_6vw,_40px)];
+  }
+  h3 {
+    @apply text-[clamp(28px,_6vw,_30px)];
+  }
+  h4 {
+    @apply text-[clamp(16px,_6vw,_25px)];
+  }
+  h5 {
+    @apply text-[clamp(16px,_6vw,_20px)];
+  }
+  h6 {
+    @apply text-[clamp(12px,_6vw,_16px)];
   }
 
   img {
@@ -73,7 +92,7 @@
 
 @layer components {
   .container {
-    @apply max-w-[1800px] mx-auto px-4;
+    @apply max-w-[1700px] mx-auto w-full px-4;
   }
   .btn {
     @apply p-1.5 py-2 border border-transparent flex gap-2 rounded-md transition-all items-center bg-primary text-sm;
@@ -190,7 +209,7 @@
   .input-wrap input,
   .input-wrap textarea,
   .input-wrap select {
-    @apply px-2 py-1 w-full outline-none border border-line bg-primary text-body rounded-md focus:border-info;
+    @apply px-2 py-1 w-full outline-none border border-line bg-primary text-body rounded-md focus:border-info min-h-[33px];
   }
 
   .input-wrap input:disabled,
@@ -226,6 +245,12 @@
   .input-photo-wrap span.error-show {
     @apply -top-4;
   }
+  .wrapper-instruction h5{
+    @apply mb-4 py-1 border-b border-gray-600 border-opacity-30 text-lg;
+  }
+  .wrapper-instruction p{
+    @apply mb-5 text-sm;
+  }
 }
 
 @layer utilities {
@@ -254,6 +279,7 @@
 /* Handle on hover */
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: hsl(42, 66%, 74%);
+  cursor: grab;
 }
 
 /* SPINNER */
@@ -290,4 +316,44 @@ input::-webkit-inner-spin-button {
 
 .index {
   border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.grid-name-0,
+.grid-name-top-0 {
+  grid-area: a;
+}
+.grid-name-1,
+.grid-name-top-1 {
+  grid-area: b;
+}
+.grid-name-2,
+.grid-name-top-2 {
+  grid-area: c;
+}
+.grid-name-3,
+.grid-name-top-3 {
+  grid-area: d;
+}
+.grid-name-4,
+.grid-name-top-4 {
+  grid-area: e;
+}
+.grid-name-5,
+.grid-name-top-5 {
+  grid-area: f;
+}
+
+.grid-container {
+  grid-template-areas:
+    "a a b"
+    "a a c"
+    "d e f";
+}
+
+.grid-container-top {
+  min-height: 2000px;
+  grid-template-areas:
+    "a c f"
+    "a d f"
+    "b d e";
 }

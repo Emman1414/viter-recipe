@@ -11,6 +11,7 @@ import RecipeTable from "./RecipeTable";
 import ModalError from "../partials/modals/ModalError";
 
 const Recipe = () => {
+  
   const { dispatch, store } = React.useContext(StoreContext);
   const [itemEdit, setItemEdit] = React.useState(null);
 
