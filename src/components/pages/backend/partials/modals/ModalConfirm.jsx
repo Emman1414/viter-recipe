@@ -38,7 +38,7 @@ const ModalConfirm = ({ mysqlApiArchive, queryKey, active }) => {
     });
   };
 
-  const handleClose = () => setIsConfirm(false);
+  const handleClose = () => dispatch(setIsConfirm(false));
 
   return (
     <>
