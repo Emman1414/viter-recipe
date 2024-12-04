@@ -9,6 +9,8 @@ import SideNavigation from "../partials/SideNavigation";
 import ModalAddRecipe from "./ModalAddRecipe";
 import RecipeTable from "./RecipeTable";
 import ModalError from "../partials/modals/ModalError";
+import ModalValidation from "../partials/modals/ModalValidation";
+import ToastSuccess from "../partials/ToastSuccess";
 
 const Recipe = () => {
   

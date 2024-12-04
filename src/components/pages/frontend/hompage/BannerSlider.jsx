@@ -12,8 +12,11 @@ import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import useQueryData from "../../../custom-hook/useQueryData";
 
-const BannerSlider = () => {
+const BannerSlider = ({ result }) => {
+  
+
   const settings = {
     infinite: true,
     speed: 500,
@@ -25,38 +28,33 @@ const BannerSlider = () => {
   return (
     <section>
       <Slider {...settings}>
-        {Array.from(Array(5).keys()).map((key) => (
+        {result?.data.map((item, key) => (
           <div className="w-full h-[calc(100vh-77.5px)] relative " key={key}>
             <img
-              src={`${imgPath}/chicken.jpg`}
+              src={`${imgPath}/${item.recipe_image}`}
               alt=""
               className="w-full h-[110%] object-cover "
             />
 
             <div className="tint w-full h-[110%] bg-black bg-opacity-60 absolute top-0 left-0"></div>
             <div className="absolute top-1/2 md:left-[calc((100vw-1200px)/2)] p-4 text-white md:max-w-[500px] -translate-y-1/2">
-              <h2 className="text-5xl mb-2">Roasted Chicken</h2>
+              <h2 className="text-5xl mb-2">{item.recipe_title}</h2>
               <ul className="flex gap-5 mb-5">
                 <li className="flex gap-2 items-center">
-                  <Clock /> 30 mins
+                  <Clock /> {item.recipe_prep_time}
                 </li>
                 <li className="flex gap-2 items-center">
-                  <Utensils /> 4 servings
+                  <Utensils /> 4 {item.recipe_serving}
                 </li>
                 <li className="flex gap-2 items-center">
-                  <HandPlatter /> Chicken
+                  <HandPlatter /> {item.recipe_category}
                 </li>
               </ul>
 
-              <p className="mb-5">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iste
-                deserunt possimus sit eum architecto nihil nobis officiis,
-                explicabo labore dolores animi earum delectus! Accusantium
-                dolor, optio fugit eligendi aspernatur perspiciatis?
-              </p>
+              <p className="mb-5">{item.recipe_description}</p>
 
               <Link
-                to="/"
+                to={`/recipe/single/${item.recipe_title.replaceAll(" ", "-")}`}
                 className="flex gap-3 items-center group hover:text-accent transition-all font-bold"
               >
                 View Full Recipe
