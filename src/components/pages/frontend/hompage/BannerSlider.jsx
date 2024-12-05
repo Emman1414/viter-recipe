@@ -1,18 +1,15 @@
-import React from "react";
-import { imgPath } from "../../../helpers/functions-general";
 import {
   ArrowRight,
-  ChartBarStacked,
   Clock,
-  CookingPot,
   HandPlatter,
-  Utensils,
+  Utensils
 } from "lucide-react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import useQueryData from "../../../custom-hook/useQueryData";
+import "slick-carousel/slick/slick.css";
+import { imgPath } from "../../../helpers/functions-general";
 
 const BannerSlider = ({ result }) => {
   
