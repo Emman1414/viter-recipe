@@ -9,7 +9,14 @@ if (array_key_exists("recipeid", $_GET)) {
 
     $recipe->recipe_aid = $_GET['recipeid'];
     $recipe->recipe_title = checkIndex($data, "recipe_title");
-    $recipe->recipe_choices = json_encode($data["recipe_choices"]);
+    $recipe->recipe_category = checkIndex($data, "recipe_category");
+    $recipe->recipe_level = checkIndex($data, "recipe_level");
+    $recipe->recipe_serving = checkIndex($data, "recipe_serving");
+    $recipe->recipe_prep_time = checkIndex($data, "recipe_prep_time");
+    $recipe->recipe_image = checkIndex($data, "recipe_image");
+    $recipe->recipe_ingredients = json_encode($data["recipe_ingredients"]);
+    $recipe->recipe_description = checkIndex($data, "recipe_description");
+    $recipe->recipe_instruction = checkIndex($data, "recipe_instruction");
 
     $recipe->recipe_datetime = date("Y-m-d H:i:s");
     $recipe_title_old = strtolower($data["recipe_title_old"]);

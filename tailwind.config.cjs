@@ -2,7 +2,6 @@
 
 const colors = [
   "myred",
-  "myyellow",
   "accent",
   "light",
   "dark",

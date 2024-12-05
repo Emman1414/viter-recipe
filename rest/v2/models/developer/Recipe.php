@@ -27,11 +27,10 @@ class Recipe
     public function __construct($db)
     {
         $this->connection = $db;
-        $this->tblrecipe = "recipes";
+        $this->tblrecipe = "recipe";
     }
 
-    // create
-    public function create()
+ public function create()
     {
         try {
             $sql = "insert into {$this->tblrecipe} ";
@@ -80,6 +79,9 @@ class Recipe
         }
         return $query;
     }
+
+
+
 
     // read all
     public function readAll()
