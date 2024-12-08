@@ -82,6 +82,8 @@ const ModalAddRecipe = ({ itemEdit }) => {
     recipe_instruction: Yup.string().required("required"),
   });
 
+  console.log(itemEdit);
+
   return (
     <ModalWrapper>
       <div className="modal-main bg-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[1300px] w-full rounded-md border border-line">
