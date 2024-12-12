@@ -5,6 +5,7 @@ import Recipe from "./components/pages/backend/recipe/Recipe";
 import Homepage from "./components/pages/frontend/hompage/Homepage";
 import Single from "./components/pages/frontend/single/Single";
 import { StoreProvider } from "./components/store/storeContext";
+import Category from "./components/pages/backend/category/Category";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -17,6 +18,7 @@ const App = () => {
             <Route index element={<Homepage />} />
             <Route path="/recipe/single/:slug" element={<Single />} />
             <Route path="/admin/recipe" element={<Recipe />} />
+            <Route path="/admin/category" element={<Category />} />
           </Routes>
         </Router>
       </StoreProvider>

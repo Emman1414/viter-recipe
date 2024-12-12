@@ -1,10 +1,10 @@
 <?php
 // set http header
-require '../../../core/header.php';
+require '../../core/header.php';
 // use needed functions
-require '../../../core/functions.php';
+require '../../core/functions.php';
 // use needed classes
-require '../../../models/developer/Recipe.php';
+require '../../models/Recipe.php';
 
 $body = file_get_contents("php://input");
 $data = json_decode($body, true);

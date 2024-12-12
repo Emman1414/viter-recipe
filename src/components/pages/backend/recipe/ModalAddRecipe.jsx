@@ -1,97 +1,103 @@
 import React from "react";
 import ModalWrapper from "../partials/modals/ModalWrapper";
-import { ImagePlusIcon, X } from "lucide-react";
+import { ImagePlusIcon, Minus, Plus, X } from "lucide-react";
 import SpinnerButton from "../partials/spinners/SpinnerButton";
 import { StoreContext } from "@/components/store/storeContext";
 import {
-  setError,
   setIsAdd,
   setMessage,
   setSuccess,
+  setValidate,
 } from "@/components/store/storeAction";
-import { Form, Formik } from "formik";
-import * as Yup from "Yup";
-import { InputPhotoUpload, InputText } from "@/components/helpers/FormInputs";
-import useUploadPhoto from "@/components/custom-hook/useUploadPhoto";
+import { Field, FieldArray, Form, Formik } from "formik";
+import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryData } from "@/components/helpers/queryData";
-import { imgPath } from "@/components/helpers/functions-general";
+import useUploadPhoto from "@/components/custom-hook/useUploadPhoto";
+import { imgPath } from "../../../helpers/functions-general";
+import { InputPhotoUpload, InputSelect, InputText, InputTextArea } from "../../../helpers/FormInputs";
 
-const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
+const ModalAddRecipe = ({ itemEdit }) => {
   const { dispatch } = React.useContext(StoreContext);
-  const { uploadPhoto, handleChangePhoto, photo } = useUploadPhoto("");
-  const [value, setValue] = React.useState("");
-
-  const handleClose = () => {
-    dispatch(setIsAdd(false));
-  };
-
-  const handleChange = (event) => {
-    setValue(event.target.value);
-  };
-
   const queryClient = useQueryClient();
+
+  const { uploadPhoto, handleChangePhoto, photo } =
+    useUploadPhoto("/v2/upload-photo");
+
   const mutation = useMutation({
     mutationFn: (values) =>
       queryData(
-        isCategoryEdit
-          ? `/v2/category/${isCategoryEdit.category_aid}`
-          : "/v2/category",
-        isCategoryEdit ? "PUT" : "POST",
+        itemEdit ? `/v2/recipe/${itemEdit.recipe_aid}` : `/v2/recipe`,
+        itemEdit ? "put" : "post",
         values
       ),
     onSuccess: (data) => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["category"] });
+      queryClient.invalidateQueries({
+        queryKey: ["recipe"],
+      });
 
       // show error box
-      if (!data.success) {
-        dispatch(setError(true));
-        dispatch(setMessage(data.error));
-        dispatch(setSuccess(false));
-      } else {
-        console.log("Success");
+      if (data.success) {
         dispatch(setIsAdd(false));
         dispatch(setSuccess(true));
-        dispatch(setMessage("Successful!"));
+        dispatch(setMessage("Record Successfully Updated"));
+      } else {
+        dispatch(setValidate(true));
+        dispatch(setMessage(data.error));
       }
     },
   });
 
+  const handleClose = () => dispatch(setIsAdd(false));
   const initVal = {
-    category_aid: isCategoryEdit ? isCategoryEdit.category_aid : "",
-    category_image: isCategoryEdit ? isCategoryEdit.category_image : "",
-    category_title: isCategoryEdit ? isCategoryEdit.category_title : "",
-  };
+    recipe_title: itemEdit ? itemEdit.recipe_title : "",
+    recipe_category: itemEdit ? itemEdit.recipe_category : "",
+    recipe_level: itemEdit ? itemEdit.recipe_level : "",
+    recipe_serving: itemEdit ? itemEdit.recipe_serving : "",
+    recipe_prep_time: itemEdit ? itemEdit.recipe_prep_time : "",
+    recipe_description: itemEdit ? itemEdit.recipe_description : "",
+    recipe_instruction: itemEdit ? itemEdit.recipe_instruction : "",
 
+    recipe_title_old: itemEdit ? itemEdit.recipe_title : "",
+
+    recipe_ingredients: itemEdit
+      ? JSON.parse(itemEdit.recipe_ingredients)
+      : [{ ingredients: "", amount: "", unit: "" }],
+  };
   const yupSchema = Yup.object({
-    category_title: Yup.string().required("Required"),
+    recipe_title: Yup.string().required("required"),
+    recipe_category: Yup.string().required("required"),
+    recipe_level: Yup.string().required("required"),
+    recipe_serving: Yup.string().required("required"),
+    recipe_prep_time: Yup.string().required("required"),
+    recipe_description: Yup.string().required("required"),
+    recipe_instruction: Yup.string().required("required"),
   });
 
   return (
-    <>
-      <ModalWrapper>
-        <div className="modal-side absolute top-0 right-0 bg-primary h-[100dvh] w-[300px] border-l border-line">
-          <div className="modal-header p-4 flex justify-between items-center">
-            <h5 className="mb-0">Add Category</h5>
-            <button onClick={handleClose}>
-              <X />
-            </button>
-          </div>
-
+    <ModalWrapper>
+      <div className="modal-main bg-primary absolute top-1/2 left-1/2 -translate-x-1/2  -translate-y-1/2 max-w-[1300px] w-full rounded-md border border-line">
+        <div className="modal-header flex gap-2 p-2 items-center border-b border-line mb-2">
+          <span className="text-body">Add Recipe</span>
+          <button className="ml-auto" onClick={handleClose}>
+            <X />
+          </button>
+        </div>
+        <div className="modal-body p-4 py-4">
           <Formik
             initialValues={initVal}
             validationSchema={yupSchema}
             onSubmit={async (values) => {
               mutation.mutate({
                 ...values,
-                category_image:
-                  (isCategoryEdit?.category_image === "" && photo) ||
+                recipe_image:
+                  (itemEdit?.recipe_image === "" && photo) ||
                   (!photo && "") ||
                   (photo === undefined && "") ||
-                  (photo && isCategoryEdit?.category_image !== photo?.name)
+                  (photo && itemEdit?.recipe_image !== photo?.name)
                     ? photo?.name || ""
-                    : isCategoryEdit?.category_image || "",
+                    : itemEdit?.recipe_image || "",
               });
               uploadPhoto();
             }}
@@ -99,20 +105,12 @@ const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
             {(props) => {
               return (
                 <Form>
-                  <div className="modal-form  h-[calc(100vh-56px)] grid grid-rows-[1fr_auto]">
-                    <div className="form-wrapper p-4 max-h-[85vh] h-full overflow-y-auto custom-scroll">
-                      <div className="input-wrap">
-                        <InputText
-                          label="Title"
-                          type="text"
-                          name="category_title"
-                          onChange={handleChange}
-                        />
-                      </div>
+                  <div className="grid grid-cols-[1fr,_1.5fr,_1.5fr] gap-5">
+                    <div className="info">
+                      <h3 className="mb-0">Information</h3>
                       <div className="input-wrap relative  group input-photo-wrap h-[150px] ">
-                        <label htmlFor="">Photo</label>
-                        {isCategoryEdit === null && photo === null ? (
-                          <div className="w-full border border-line rounded-md flex justify-center items-center flex-col h-full">
+                        {itemEdit === null && photo === null ? (
+                          <div className="w-full  rounded-md flex justify-center items-center flex-col h-full">
                             <ImagePlusIcon
                               size={50}
                               strokeWidth={1}
@@ -127,12 +125,17 @@ const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
                             src={
                               photo
                                 ? URL.createObjectURL(photo) // preview
-                                : imgPath + "/" + isCategoryEdit?.category_image // check db
+                                : imgPath + "/" + itemEdit?.recipe_image // check db
                             }
-                            alt="employee photo"
-                            className={`group-hover:opacity-30 duration-200 relative object-cover h-full w-full  m-auto `}
+                            alt="Recipe photo"
+                            className={`group-hover:opacity-30 duration-200 relative object-cover h-full w-full  m-auto ${
+                              mutation.isPending
+                                ? "opacity-40 pointer-events-none"
+                                : ""
+                            }`}
                           />
                         )}
+
                         <InputPhotoUpload
                           name="photo"
                           type="file"
@@ -141,31 +144,164 @@ const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
                           title="Upload photo"
                           onChange={(e) => handleChangePhoto(e)}
                           onDrop={(e) => handleChangePhoto(e)}
-                          className={`opacity-0 absolute top-0 right-0 bottom-0 left-0 rounded-full  m-auto cursor-pointer w-full h-full`}
+                          className={`opacity-0 absolute top-0 right-0 bottom-0 left-0 rounded-full  m-auto cursor-pointer w-full h-full ${
+                            mutation.isPending ? "pointer-events-none" : ""
+                          }`}
+                        />
+                      </div>
+
+                      <div className="input-wrap">
+                        <InputText
+                          label="Title"
+                          type="text"
+                          name="recipe_title"
+                        />
+                      </div>
+                      <div className="input-wrap">
+                        <InputSelect label="Category" name="recipe_category">
+                          <option value="" hidden>
+                            Select Category
+                          </option>
+                          <option value="Chicken">Chicken</option>
+                          <option value="Beef">Beef</option>
+                          <option value="Pasta">Pasta</option>
+                          <option value="Vegetable">Vegetable</option>
+                        </InputSelect>
+                      </div>
+                      <div className="input-wrap">
+                        <InputSelect label="Level" name="recipe_level">
+                          <option value="" hidden>
+                            Select Level
+                          </option>
+                          <option value="easy">Easy</option>
+                          <option value="moderate">Moderate</option>
+                          <option value="difficult">Difficult</option>
+                        </InputSelect>
+                      </div>
+                      <div className="input-wrap">
+                        <InputText
+                          label="Serving"
+                          type="text"
+                          name="recipe_serving"
+                        />
+                      </div>
+                      <div className="input-wrap">
+                        <InputText
+                          label="Prep Time"
+                          type="text"
+                          name="recipe_prep_time"
                         />
                       </div>
                     </div>
-                    <div className="form-action flex p-4 justify-end gap-3">
-                      <button className="btn btn-add" type="submit">
-                        <SpinnerButton /> Save
-                      </button>
-                      <button
-                        className="btn btn-cancel"
-                        onClick={handleClose}
-                        type="reset"
-                      >
-                        Cancel
-                      </button>
+
+                    <div className="ingredient">
+                      <FieldArray
+                        name="recipe_ingredients"
+                        render={({ push, remove }) => (
+                          <div className="input-wrap">
+                            <div className="flex justify-between items-center">
+                              <h3 className="mb-0">Ingredients</h3>
+                              <button
+                                className="bg-alert  p-1 px-2 text-sm rounded-md"
+                                type="button"
+                                onClick={() =>
+                                  push({
+                                    ingredients: "",
+                                    amount: "",
+                                    unit: "",
+                                  })
+                                }
+                              >
+                                Add
+                              </button>
+                            </div>
+
+                            <div className="overflow-y-auto custom-scroll max-h-[500px] h-full pr-2">
+                              {props.values.recipe_ingredients.map(
+                                (ingredients, index) => (
+                                  <div
+                                    className="grid grid-cols-[1fr,_.3fr,_.8fr_.2fr] gap-3 mt-3 "
+                                    key={index}
+                                  >
+                                    <div>
+                                      <label htmlFor="">Ingredients</label>
+                                      <Field
+                                        name={`recipe_ingredients[${index}].ingredients`}
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <label htmlFor="">Amount</label>
+                                      <Field
+                                        name={`recipe_ingredients[${index}].amount`}
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <label htmlFor="">Unit</label>
+                                      <Field
+                                        name={`recipe_ingredients[${index}].unit`}
+                                      />
+                                    </div>
+
+                                    <button
+                                      className="size-[33px] bg-accent text-white rounded-md center-all self-end"
+                                      onClick={() => remove(index)}
+                                    >
+                                      <Minus />
+                                    </button>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      />
                     </div>
+
+                    <div className="instruction">
+                      <div className="input-wrap">
+                        <h3 className="mb-0">Description</h3>
+                        <InputTextArea
+                          label="Description"
+                          name="recipe_description"
+                          className="overflow-y-auto custom-scroll p-2 !h-[120px] w-full rounded-md outline-none border border-line bg-primary
+                        text-body resize-none mb-5"
+                        />
+                      </div>
+                      <div className="input-wrap">
+                        <h3 className="mb-0">Instructions</h3>
+                        <InputTextArea
+                          label="Instructions"
+                          name="recipe_instruction"
+                          className="overflow-y-auto custom-scroll p-2 !h-[300px] w-full rounded-md outline-none border border-line bg-primary
+                        text-body resize-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-5">
+                    <button className="btn btn-alert" type="submit">
+                      {mutation.isPending && <SpinnerButton />}
+                      {itemEdit ? "Save" : "Add"}
+                    </button>
+                    <button
+                      className="btn btn-cancel"
+                      type="reset"
+                      onClick={handleClose}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </Form>
               );
             }}
           </Formik>
         </div>
-      </ModalWrapper>
-    </>
+      </div>
+    </ModalWrapper>
   );
 };
 
-export default ModalAddCategory;
+export default ModalAddRecipe;

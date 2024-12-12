@@ -1,8 +1,8 @@
 <?php
 
-require '../../../core/header.php';
-require '../../../core/functions.php';
-require '../../../models/developer/Recipe.php';
+require '../../core/header.php';
+require '../../core/functions.php';
+require '../../models/Recipe.php';
 
 $conn = null;
 $conn = checkDbConnection();

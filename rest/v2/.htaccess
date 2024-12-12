@@ -13,9 +13,15 @@ RewriteRule ^upload-photo$ core/upload-photo.php [L]
 
 
 ### Recipe ###
-RewriteRule ^recipe$ controllers/developer/recipe/recipe.php [L]
-RewriteRule ^recipe/([0-9]+)$ controllers/developer/recipe/recipe.php?recipeid=$1 [L]
-RewriteRule ^recipe/active/([0-9]+)$ controllers/developer/recipe/active.php?recipeid=$1 [L]
-RewriteRule ^recipe/search$ controllers/developer/recipe/search.php [L]
-RewriteRule ^recipe/page/([0-9]+)$ controllers/developer/recipe/page.php?start=$1 [L]
+RewriteRule ^recipe$ controllers/recipe/recipe.php [L]
+RewriteRule ^recipe/([0-9]+)$ controllers/recipe/recipe.php?recipeid=$1 [L]
+RewriteRule ^recipe/active/([0-9]+)$ controllers/recipe/active.php?recipeid=$1 [L]
+RewriteRule ^recipe/search$ controllers/recipe/search.php [L]
+RewriteRule ^recipe/page/([0-9]+)$ controllers/recipe/page.php?start=$1 [L]
 
+
+RewriteRule ^category$ controllers/category/category.php [L]
+RewriteRule ^category/([0-9]+)$ controllers/category/category.php?categoryid=$1 [L]
+RewriteRule ^category/active/([0-9]+)$ controllers/category/active.php?categoryid=$1 [L]
+RewriteRule ^category/search$ controllers/category/search.php [L]
+RewriteRule ^category/page/([0-9]+)$ controllers/category/page.php?start=$1 [L]
