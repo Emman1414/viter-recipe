@@ -1,7 +1,8 @@
-
 import {
+  Component,
+  HandPlatter,
   LayoutDashboard,
-  UtensilsCrossed
+  UtensilsCrossed,
 } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { imgPath } from "../../../helpers/functions-general";
@@ -21,18 +22,18 @@ const SideNavigation = ({ menu }) => {
     {
       title: "Category",
       slug: "/admin/category",
-      icon: <UtensilsCrossed size={16} />,
+      icon: <HandPlatter size={16} />,
     },
     {
       title: "Level",
       slug: "/admin/level",
-      icon: <UtensilsCrossed size={16} />,
+      icon: <Component size={16} />,
     },
   ];
   return (
     <>
       <aside className="p-4 border-r border-line">
-        <Link to= "/">
+        <Link to="/">
           <img
             src={`${imgPath}/real-chef.png`}
             alt=""
