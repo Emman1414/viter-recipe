@@ -1,6 +1,6 @@
 export const imgPath = "http://localhost/viter-recipe/public/img";
 
-export const projectURL = "http://localhost/viter-recipe";
+const projectURL = "http://localhost/viter-recipe";
 
 export const devApiUrl = `${projectURL}/rest`;
 export const devBaseUrl = `${projectURL}`;
@@ -21,4 +21,12 @@ export const fetchFormData = (url, fd = {}) => {
       console.error(error + " api endpoint error");
     });
   return data;
+};
+
+// get focus on a button
+export const GetFocus = (id) => {
+  React.useEffect(() => {
+    const obj = document.getElementById(id);
+    obj.focus();
+  }, []);
 };

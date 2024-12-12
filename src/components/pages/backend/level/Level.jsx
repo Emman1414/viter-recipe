@@ -1,33 +1,34 @@
 import { setIsAdd } from "@/components/store/storeAction";
-import { StoreContext } from "@/components/store/storeContext";
 import { Plus } from "lucide-react";
 import React from "react";
 import Footer from "../partials/Footer";
 import Header from "../partials/Header";
-import SearchBar from "../partials/SearchBar";
-import SideNavigation from "../partials/SideNavigation";
-import ModalAddRecipe from "./ModalAddRecipe";
-import RecipeTable from "./RecipeTable";
 import ModalError from "../partials/modals/ModalError";
 import ModalValidation from "../partials/modals/ModalValidation";
+import SearchBar from "../partials/SearchBar";
+import SideNavigation from "../partials/SideNavigation";
 import ToastSuccess from "../partials/ToastSuccess";
+import LevelTable from "./LevelTable";
+import ModalAddLevel from "./ModalAddLevel";
+import { StoreContext } from "../../../store/storeContext";
 
-const Recipe = () => {
-  
+const Level = () => {
   const { dispatch, store } = React.useContext(StoreContext);
-  const [itemEdit, setItemEdit] = React.useState(null);
+
+  const [isLevelEdit, setIsLevelEdit] = React.useState(null);
 
   const handleAdd = () => {
     dispatch(setIsAdd(true));
-    setItemEdit(null);
+    setIsLevelEdit(null);
   };
+
   return (
     <>
       <section className="layout-main">
         <div className="layout-division">
-          <SideNavigation menu="recipe" />
+          <SideNavigation menu="level" submenu="read" />
           <main>
-            <Header title="Recipe" subtitle="Manage Recipe" />
+            <Header title="Level" subtitle="Manage Recipe Level" />
             <div className="p-8">
               <div className="flex justify-between items-center ">
                 <SearchBar />
@@ -37,7 +38,10 @@ const Recipe = () => {
                   Add New
                 </button>
               </div>
-              <RecipeTable setItemEdit={setItemEdit} itemEdit={itemEdit} />
+              <LevelTable
+                isLevelEdit={isLevelEdit}
+                setIsLevelEdit={setIsLevelEdit}
+              />
             </div>
             <Footer />
           </main>
@@ -47,11 +51,16 @@ const Recipe = () => {
       {store.validate && <ModalValidation />}
       {store.error && <ModalError />}
       {store.success && <ToastSuccess />}
+      {/* <SpinnerWindow /> */}
+
       {store.isAdd && (
-        <ModalAddRecipe itemEdit={itemEdit} setItemEdit={setItemEdit} />
+        <ModalAddLevel
+          isLevelEdit={isLevelEdit}
+          setIsLevelEdit={setIsLevelEdit}
+        />
       )}
     </>
   );
 };
 
-export default Recipe;
+export default Level;

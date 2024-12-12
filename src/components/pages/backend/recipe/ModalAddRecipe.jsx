@@ -15,14 +15,46 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryData } from "@/components/helpers/queryData";
 import useUploadPhoto from "@/components/custom-hook/useUploadPhoto";
 import { imgPath } from "../../../helpers/functions-general";
-import { InputPhotoUpload, InputSelect, InputText, InputTextArea } from "../../../helpers/FormInputs";
+import {
+  InputPhotoUpload,
+  InputSelect,
+  InputText,
+  InputTextArea,
+} from "../../../helpers/FormInputs";
+import useQueryData from "../../../custom-hook/useQueryData";
 
 const ModalAddRecipe = ({ itemEdit }) => {
   const { dispatch } = React.useContext(StoreContext);
   const queryClient = useQueryClient();
+  const [value, setValue] = React.useState("");
 
-  const { uploadPhoto, handleChangePhoto, photo } =
-    useUploadPhoto("/v2/upload-photo");
+  const { uploadPhoto, handleChangePhoto, photo } = useUploadPhoto("");
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
+
+  const {
+    isFetching,
+    error,
+    status,
+    data: categ,
+  } = useQueryData(
+    `/v2/category`, // endpoint
+    "get", // method
+    "category" // key
+  );
+
+  const {
+    isFetch,
+    isError,
+    isStatus,
+    data: level,
+  } = useQueryData(
+    `/v2/level`, // endpoint
+    "get", // method
+    "level" // key
+  );
 
   const mutation = useMutation({
     mutationFn: (values) =>
@@ -52,8 +84,8 @@ const ModalAddRecipe = ({ itemEdit }) => {
   const handleClose = () => dispatch(setIsAdd(false));
   const initVal = {
     recipe_title: itemEdit ? itemEdit.recipe_title : "",
-    recipe_category: itemEdit ? itemEdit.recipe_category : "",
-    recipe_level: itemEdit ? itemEdit.recipe_level : "",
+    recipe_category_id: itemEdit ? itemEdit.recipe_category_id : "",
+    recipe_level_id: itemEdit ? itemEdit.recipe_level_id : "",
     recipe_serving: itemEdit ? itemEdit.recipe_serving : "",
     recipe_prep_time: itemEdit ? itemEdit.recipe_prep_time : "",
     recipe_description: itemEdit ? itemEdit.recipe_description : "",
@@ -67,8 +99,8 @@ const ModalAddRecipe = ({ itemEdit }) => {
   };
   const yupSchema = Yup.object({
     recipe_title: Yup.string().required("required"),
-    recipe_category: Yup.string().required("required"),
-    recipe_level: Yup.string().required("required"),
+    recipe_category_id: Yup.string().required("required"),
+    recipe_level_id: Yup.string().required("required"),
     recipe_serving: Yup.string().required("required"),
     recipe_prep_time: Yup.string().required("required"),
     recipe_description: Yup.string().required("required"),
@@ -158,24 +190,43 @@ const ModalAddRecipe = ({ itemEdit }) => {
                         />
                       </div>
                       <div className="input-wrap">
-                        <InputSelect label="Category" name="recipe_category">
-                          <option value="" hidden>
-                            Select Category
-                          </option>
-                          <option value="Chicken">Chicken</option>
-                          <option value="Beef">Beef</option>
-                          <option value="Pasta">Pasta</option>
-                          <option value="Vegetable">Vegetable</option>
+                        <InputSelect
+                          label="Food Category"
+                          name="recipe_category_id"
+                          onChange={handleChange}
+                        >
+                          <option value="" hidden></option>
+                          {categ?.data.map((item, key) => {
+                            return (
+                              <>
+                                {item.category_is_active === 1 && (
+                                  <option key={key} value={item.category_aid}>
+                                    {item.category_title}
+                                  </option>
+                                )}
+                              </>
+                            );
+                          })}
                         </InputSelect>
                       </div>
                       <div className="input-wrap">
-                        <InputSelect label="Level" name="recipe_level">
-                          <option value="" hidden>
-                            Select Level
-                          </option>
-                          <option value="easy">Easy</option>
-                          <option value="moderate">Moderate</option>
-                          <option value="difficult">Difficult</option>
+                        <InputSelect
+                          label="Recipe Level"
+                          name="recipe_level_id"
+                          onChange={handleChange}
+                        >
+                          <option value="" hidden></option>
+                          {level?.data.map((item, key) => {
+                            return (
+                              <>
+                                {item.level_is_active === 1 && (
+                                  <option key={key} value={item.level_aid}>
+                                    {item.level_level}
+                                  </option>
+                                )}
+                              </>
+                            );
+                          })}
                         </InputSelect>
                       </div>
                       <div className="input-wrap">

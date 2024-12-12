@@ -1,8 +1,11 @@
 <?php
 
+// set http header
 require '../../core/header.php';
+// use needed functions
 require '../../core/functions.php';
-require '../../models/Recipe.php';
+// use needed classes
+require '../../models/developer/Recipe.php';
 
 $conn = null;
 $conn = checkDbConnection();

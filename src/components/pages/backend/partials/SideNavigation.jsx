@@ -23,6 +23,11 @@ const SideNavigation = ({ menu }) => {
       slug: "/admin/category",
       icon: <UtensilsCrossed size={16} />,
     },
+    {
+      title: "Level",
+      slug: "/admin/level",
+      icon: <UtensilsCrossed size={16} />,
+    },
   ];
   return (
     <>
