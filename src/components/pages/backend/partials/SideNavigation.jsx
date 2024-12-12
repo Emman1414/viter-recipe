@@ -1,9 +1,10 @@
-import { imgPath } from "@/components/helpers/functions-general";
+
 import {
   LayoutDashboard,
   UtensilsCrossed
 } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
+import { imgPath } from "../../../helpers/functions-general";
 
 const SideNavigation = ({ menu }) => {
   const links = [
@@ -15,6 +16,16 @@ const SideNavigation = ({ menu }) => {
     {
       title: "Recipe",
       slug: "/admin/recipe",
+      icon: <UtensilsCrossed size={16} />,
+    },
+    {
+      title: "Category",
+      slug: "/admin/category",
+      icon: <UtensilsCrossed size={16} />,
+    },
+    {
+      title: "Level",
+      slug: "/admin/level",
       icon: <UtensilsCrossed size={16} />,
     },
   ];

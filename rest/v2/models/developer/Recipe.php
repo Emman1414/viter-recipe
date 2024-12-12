@@ -2,31 +2,51 @@
 class Recipe
 {
     public $recipe_aid;
+    public $recipe_is_active;
     public $recipe_title;
-    public $recipe_category;
-    public $recipe_level;
+    public $recipe_category_id;
+    public $recipe_level_id;
     public $recipe_serving;
     public $recipe_prep_time;
     public $recipe_image;
     public $recipe_ingredients;
     public $recipe_description;
     public $recipe_instruction;
-    public $recipe_is_active;
     public $recipe_datetime;
     public $recipe_created;
+
+    public $category_aid;
+    public $category_is_active;
+    public $category_title;
+    public $category_datetime;
+    public $category_created;
+
+    public $level_aid;
+    public $level_is_active;
+    public $level_level;
+    public $level_datetime;
+    public $level_created;
 
     public $connection;
     public $lastInsertedId;
 
+    public $tblCategory;
+    public $tblLevel;
     public $tblrecipe;
 
     public $recipe_start;
     public $recipe_total;
     public $recipe_search;
+    public $Category_total;
+    public $Category_search;
+    public $Level_total;
+    public $Level_search;
 
     public function __construct($db)
     {
         $this->connection = $db;
+        $this->tblCategory = "recipe_category";
+        $this->tblLevel = "recipe_level";
         $this->tblrecipe = "recipe";
     }
 
@@ -34,10 +54,10 @@ class Recipe
     {
         try {
             $sql = "insert into {$this->tblrecipe} ";
-            $sql .= "( recipe_title, ";
-            $sql .= "recipe_is_active, ";
-            $sql .= "recipe_category, ";
-            $sql .= "recipe_level, ";
+            $sql .= "( recipe_is_active, ";
+            $sql .= "recipe_title, ";
+            $sql .= "recipe_category_id, ";
+            $sql .= "recipe_level_id, ";
             $sql .= "recipe_serving, ";
             $sql .= "recipe_prep_time, ";
             $sql .= "recipe_image, ";
@@ -46,10 +66,10 @@ class Recipe
             $sql .= "recipe_instruction, ";
             $sql .= "recipe_datetime, ";
             $sql .= "recipe_created ) values ( ";
-            $sql .= ":recipe_title, ";
             $sql .= ":recipe_is_active, ";
-            $sql .= ":recipe_category, ";
-            $sql .= ":recipe_level, ";
+            $sql .= ":recipe_title, ";
+            $sql .= ":recipe_category_id, ";
+            $sql .= ":recipe_level_id, ";
             $sql .= ":recipe_serving, ";
             $sql .= ":recipe_prep_time, ";
             $sql .= ":recipe_image, ";
@@ -60,10 +80,10 @@ class Recipe
             $sql .= ":recipe_created ) ";
             $query = $this->connection->prepare($sql);
             $query->execute([
-                "recipe_title" => $this->recipe_title,
                 "recipe_is_active" => $this->recipe_is_active,
-                "recipe_category" => $this->recipe_category,
-                "recipe_level" => $this->recipe_level,
+                "recipe_title" => $this->recipe_title,
+                "recipe_category_id" => $this->recipe_category_id,
+                "recipe_level_id" => $this->recipe_level_id,
                 "recipe_serving" => $this->recipe_serving,
                 "recipe_prep_time" => $this->recipe_prep_time,
                 "recipe_image" => $this->recipe_image,
@@ -87,9 +107,15 @@ class Recipe
     public function readAll()
     {
         try {
-            $sql = "select * from {$this->tblrecipe} ";
-            $sql .= "order by recipe_is_active desc, ";
-            $sql .= "recipe_title asc ";
+          $sql = "select * ";
+          $sql .= "from ";
+          $sql .= "{$this->tblCategory} as readCategory, ";
+          $sql .= "{$this->tblLevel} as readLevel, ";
+          $sql .= "{$this->tblrecipe} as readRecipe ";
+          $sql .= "where readCategory.category_aid = readRecipe.recipe_category_id ";
+          $sql .= "and readLevel.level_aid = readRecipe.recipe_level_id ";
+          $sql .= "order by readRecipe.recipe_is_active desc, ";
+          $sql .= "readRecipe.recipe_aid asc ";
             $query = $this->connection->query($sql);
         } catch (PDOException $ex) {
             $query = false;
@@ -101,9 +127,15 @@ class Recipe
     public function readLimit()
     {
         try {
-            $sql = "select * from {$this->tblrecipe} ";
-            $sql .= "order by recipe_is_active desc, ";
-            $sql .= "recipe_title asc ";
+          $sql = "select * ";
+          $sql .= "from ";
+          $sql .= "{$this->tblCategory} as readCategory, ";
+          $sql .= "{$this->tblLevel} as readLevel, ";
+          $sql .= "{$this->tblrecipe} as readRecipe ";
+          $sql .= "where readCategory.category_aid = readRecipe.recipe_category_id ";
+          $sql .= "and readLevel.level_aid = readRecipe.recipe_level_id ";
+          $sql .= "order by readRecipe.recipe_is_active desc, ";
+          $sql .= "readRecipe.recipe_aid asc ";
             $sql .= "limit :start, ";
             $sql .= ":total ";
             $query = $this->connection->prepare($sql);
@@ -158,8 +190,8 @@ class Recipe
         try {
             $sql = "update {$this->tblrecipe} set ";
             $sql .= "recipe_title = :recipe_title, ";
-            $sql .= "recipe_category = :recipe_category, ";
-            $sql .= "recipe_level = :recipe_level, ";
+            $sql .= "recipe_category_id = :recipe_category_id, ";
+            $sql .= "recipe_level_id = :recipe_level_id, ";
             $sql .= "recipe_serving = :recipe_serving, ";
             $sql .= "recipe_prep_time = :recipe_prep_time, ";
             $sql .= "recipe_image = :recipe_image, ";
@@ -171,8 +203,8 @@ class Recipe
             $query = $this->connection->prepare($sql);
             $query->execute([
                 "recipe_title" => $this->recipe_title,
-                "recipe_category" => $this->recipe_category,
-                "recipe_level" => $this->recipe_level,
+                "recipe_category_id" => $this->recipe_category_id,
+                "recipe_level_id" => $this->recipe_level_id,
                 "recipe_serving" => $this->recipe_serving,
                 "recipe_prep_time" => $this->recipe_prep_time,
                 "recipe_image" => $this->recipe_image,
