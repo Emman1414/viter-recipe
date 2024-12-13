@@ -20,6 +20,9 @@ const BannerSlider = ({ result }) => {
     slidesToScroll: 1,
     autoPlay: true,
   };
+
+
+
   return (
     <section>
       <Slider {...settings}>
