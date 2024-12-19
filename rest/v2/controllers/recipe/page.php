@@ -5,7 +5,7 @@ require '../../core/header.php';
 require '../../core/functions.php';
 // require 'functions.php';
 // use needed classes
-require '../../models/recipe/Recipe.php';
+require '../../models/developer/Recipe.php';
 
 
 // check database connection

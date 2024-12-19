@@ -31,7 +31,7 @@ const Recipe = () => {
             <Header title="Recipe" subtitle="Manage Recipe" />
             <div className="p-8">
               <div className="flex justify-between items-center ">
-                <SearchBar />
+                <div></div>
 
                 <button className="btn btn-add" onClick={handleAdd}>
                   <Plus size={16} />

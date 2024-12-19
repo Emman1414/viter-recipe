@@ -13,6 +13,8 @@ import { X } from "lucide-react";
 import React from "react";
 import * as Yup from "yup";
 import SpinnerButton from "../partials/spinners/SpinnerButton";
+import { StoreContext } from "../../../store/storeContext";
+import ModalWrapper from "../partials/modals/ModalWrapper";
 
 const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
   const { dispatch } = React.useContext(StoreContext);
@@ -146,7 +148,7 @@ const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
                     </div>
                     <div className="form-action flex p-4 justify-end gap-3">
                       <button className="btn btn-add" type="submit">
-                        {mutation.isPending ? <SpinnerButton /> : "Add"}
+                        {mutation.isPending ? <SpinnerButton /> : "Save"}
                       </button>
                       <button
                         className="btn btn-cancel"

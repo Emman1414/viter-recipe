@@ -13,6 +13,7 @@ class Level
     public $lastInsertedId;
     public $level_start;
     public $level_total;
+    public $level_search;
 
 
     public $tblLevel;
@@ -170,6 +171,61 @@ class Level
     ]);
     } catch (PDOException $ex) {
     $query = false;
+    }
+    return $query;
+  }
+
+  public function search()
+  {
+    try {
+      $sql = "select * from {$this->tblLevel} ";
+      $sql .= "where level_level like :level_level ";
+      $sql .= "order by level_is_active desc, ";
+      $sql .= "level_level ";
+      $query = $this->connection->prepare($sql);
+      $query->execute([
+        "level_level" => "%{$this->level_search}%",
+      ]);
+    } catch (PDOException $ex) {
+      $query = false;
+    }
+    return $query;
+  }
+
+  public function filterActive()
+  {
+    try {
+      $sql = "select * from {$this->tblLevel} ";
+      $sql .= "where level_is_active like :level_is_active ";
+      $sql .= "order by level_is_active desc, ";
+      $sql .= "level_level ";
+      $query = $this->connection->prepare($sql);
+      $query->execute([
+        "level_is_active" => "%{$this->level_is_active}%",
+      ]);
+    } catch (PDOException $ex) {
+      $query = false;
+    }
+    return $query;
+  }
+
+
+
+  public function filterActiveSearch()
+  {
+    try {
+      $sql = "select * from {$this->tblLevel} ";
+      $sql .= "where level_is_active like :level_is_active ";
+      $sql .= "and level_level like :level_level ";
+      $sql .= "order by level_is_active desc, ";
+      $sql .= "level_level ";
+      $query = $this->connection->prepare($sql);
+      $query->execute([
+        "level_is_active" => "$this->level_is_active",
+        "level_level" => "%{$this->level_search}%",
+      ]);
+    } catch (PDOException $ex) {
+      $query = false;
     }
     return $query;
   }

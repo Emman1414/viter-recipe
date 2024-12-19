@@ -1,21 +1,25 @@
-import React from "react";
+
 import {
   setIsAdd,
   setIsArchive,
   setIsDelete,
   setIsRestore,
 } from "@/components/store/storeAction";
-import { useInfiniteQuery } from "@tanstack/react-query";
+
 import { Archive, ArchiveRestore, FilePenLine, Trash2 } from "lucide-react";
+import React from "react";
 import { useInView } from "react-intersection-observer";
-import { StoreContext } from "@/components/store/storeContext";
-import LoadMore from "../partials/LoadMore";
-import ModalArchive from "../partials/modals_Old/ModalArchive";
-import ModalDelete from "../partials/modals_Old/ModalDelete";
-import ModalRestore from "../partials/modals_Old/ModalRestore";
-import Status from "../partials/Status";
-import { queryDataInfinite } from "@/components/helpers/queryDataInfinite";
+import Loadmore from "../partials/LoadMore";
 import SearchBarWithFilterStatus from "../partials/SearchBarWithFilterStatus";
+import Status from "../partials/Status";
+import ModalArchive from "../partials/modals/ModalArchive";
+import ModalDelete from "../partials/modals/ModalDelete";
+import ModalRestore from "../partials/modals/ModalRestore";
+import { queryDataInfinite } from "../../../helpers/queryDataInfinite";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { StoreContext } from "../../../store/storeContext";
+import TableLoader from "../partials/TableLoader";
+import { FaArchive, FaEdit, FaTrash, FaTrashRestoreAlt } from "react-icons/fa";
 
 const CategoryTable = ({ setIsCategoryEdit }) => {
   const [id, setIsId] = React.useState("");
@@ -106,9 +110,8 @@ const CategoryTable = ({ setIsCategoryEdit }) => {
         />
       </div>
       <div className="p-4 bg-secondary rounded-md mt-10 border border-line relative">
-        {/* <SpinnerTable /> */}
+        {/* {isFetchings && !isLoading && <FetchingSpinner />} */}
         <div className="table-wrapper custom-scroll">
-          {/* <TableLoader count={10} cols={4} /> */}
           <table>
             <thead>
               <tr>
@@ -119,73 +122,97 @@ const CategoryTable = ({ setIsCategoryEdit }) => {
               </tr>
             </thead>
             <tbody>
-              {/* <tr>
-                <td colSpan={100}>
-                  <IconNoData />
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={100}>
-                  <IconServerError />
-                </td>
-              </tr> */}
-
-              {result?.count > 0 &&
-                result.data.map((item, key) => (
-                  <tr key={key}>
-                    <td>{counter++}.</td>
-                    <td>
-                      {item.category_is_active === 1 ? (
-                        <Status text="Active" />
-                      ) : (
-                        <Status text="inactive" />
-                      )}
-                    </td>
-                    <td>{item.category_title}</td>
-                    <td>
-                      <ul className="table-action">
-                        {item.category_is_active ? (
-                          <>
-                            <li>
-                              <button className="tooltip" data-tooltip="Edit">
-                                <FilePenLine onClick={() => handleEdit(item)} />
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="tooltip"
-                                data-tooltip="Archive"
-                              >
-                                <Archive onClick={() => handleArchive(item)} />
-                              </button>
-                            </li>
-                          </>
-                        ) : (
-                          <>
-                            <li>
-                              <button
-                                className="tooltip"
-                                data-tooltip="Restore"
-                              >
-                                <ArchiveRestore
+              {/* LOADING */}
+              {(status === "pending" || result?.pages[0].data.length === 0) && (
+                <tr>
+                  <td colSpan="100%" className="p-10">
+                    {status === "pending" ? (
+                      <TableLoader cols={2} count={20} />
+                    ) : (
+                      <IconNoData />
+                    )}
+                  </td>
+                </tr>
+              )}
+              {/* ERROR */}
+              {error && (
+                <tr>
+                  <td colSpan="100%">
+                    <IconServerError />
+                  </td>
+                </tr>
+              )}
+              <></>
+              {/* RESULT */}
+              {result?.pages.map((page, pagekey) => (
+                <React.Fragment key={pagekey}>
+                  {page.data.map((item, key) => {
+                    return (
+                      <tr key={key} className="group relative cursor-pointer">
+                        <td className="text-center">{counter++}.</td>
+                        <td>
+                          {item.category_is_active ? (
+                            <Status text={"Active"} />
+                          ) : (
+                            <Status text={"Inactive"} />
+                          )}
+                        </td>
+                        <td>{item.category_title}</td>
+                        <td
+                          colSpan="100%"
+                          className="opacity-0 group-hover:opacity-100"
+                        >
+                          <div className="flex items-center justify-end gap-3 mr-4">
+                            {item.category_is_active == 1 ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Edit"
+                                  disabled={isFetching}
+                                  onClick={() => handleEdit(item)}
+                                >
+                                  <FaEdit />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Archive"
+                                  disabled={isFetching}
+                                  onClick={() => handleArchive(item)}
+                                >
+                                  <FaArchive />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Restore"
+                                  disabled={isFetching}
                                   onClick={() => handleRestore(item)}
-                                />
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="tool-tip"
-                                data-tooltip="Delete"
-                              >
-                                <Trash2 onClick={() => handleDelete(item)} />
-                              </button>
-                            </li>
-                          </>
-                        )}
-                      </ul>
-                    </td>
-                  </tr>
-                ))}
+                                >
+                                  <FaTrashRestoreAlt />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Delete"
+                                  disabled={isFetching}
+                                  onClick={() => handleDelete(item)}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
             </tbody>
           </table>
 

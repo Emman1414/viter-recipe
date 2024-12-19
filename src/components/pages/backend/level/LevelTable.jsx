@@ -1,25 +1,85 @@
-import useQueryData from "@/components/custom-hook/useQueryData";
 import {
   setIsAdd,
   setIsArchive,
   setIsDelete,
   setIsRestore,
 } from "@/components/store/storeAction";
-import { Archive, ArchiveRestore, FilePenLine, Trash2 } from "lucide-react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import React from "react";
+import { FaArchive, FaEdit, FaTrash, FaTrashRestoreAlt } from "react-icons/fa";
+import { useInView } from "react-intersection-observer";
+import { queryDataInfinite } from "../../../helpers/queryDataInfinite";
 import { StoreContext } from "../../../store/storeContext";
-import LoadMore from "../partials/LoadMore";
+import Loadmore from "../partials/LoadMore";
 import ModalArchive from "../partials/modals/ModalArchive";
-import Pills from "../partials/Pills";
 import ModalDelete from "../partials/modals/ModalDelete";
-import Status from "../partials/Status";
 import ModalRestore from "../partials/modals/ModalRestore";
+import SearchBarWithFilterStatus from "../partials/SearchBarWithFilterStatus";
+import Status from "../partials/Status";
+import TableLoader from "../partials/TableLoader";
 
 const LevelTable = ({ setIsLevelEdit }) => {
   const [id, setIsId] = React.useState("");
   const { store, dispatch } = React.useContext(StoreContext);
+  const [isFilter, setIsFilter] = React.useState(false);
+  const [onSearch, setOnSearch] = React.useState(false);
+  const [statusFilter, setStatusFilter] = React.useState("");
+  const search = React.useRef({ value: "" });
+  const [page, setPage] = React.useState(1);
+  const { ref, inView } = useInView(); // need installation
 
   let counter = 1;
+
+  // const {
+  //   isFetching,
+  //   error,
+  //   data: result,
+  //   status,
+  // } = useQueryData(
+  //   `/v2/level`, // endpoint
+  //   "get", // method
+  //   "level" // key
+  // );
+
+  const {
+    data: result,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["level", onSearch, isFilter, statusFilter],
+    queryFn: async ({ pageParam = 1 }) =>
+      await queryDataInfinite(
+        "/v2/level/search",
+        `/v2/level/page/${pageParam}`,
+        isFilter || store.isSearch,
+        {
+          isFilter,
+          statusFilter,
+          searchValue: search?.current.value,
+          id: "",
+        } // payload
+      ),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total) {
+        return lastPage.page + lastPage.count;
+      }
+      return;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  React.useEffect(() => {
+    if (inView) {
+      setPage((prev) => prev + 1);
+      fetchNextPage();
+    }
+  }, [inView]);
+
+  // handle
 
   const handleEdit = (item) => {
     dispatch(setIsAdd(true));
@@ -41,24 +101,26 @@ const LevelTable = ({ setIsLevelEdit }) => {
     setIsId(item.level_aid);
   };
 
-  const {
-    isFetching,
-    error,
-    data: result,
-    status,
-  } = useQueryData(
-    `/v2/level`, // endpoint
-    "get", // method
-    "level" // key
-  );
-  
-
   return (
     <>
+      <div className="mt-5">
+        <SearchBarWithFilterStatus
+          search={search}
+          dispatch={dispatch}
+          store={store}
+          result={result}
+          isFetching={isFetching}
+          setOnSearch={setOnSearch}
+          onSearch={onSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          setIsFilter={setIsFilter}
+          setPage={setPage}
+        />
+      </div>
       <div className="p-4 bg-secondary rounded-md mt-10 border border-line relative">
-        {/* <SpinnerTable /> */}
+        {/* {isFetchings && !isLoading && <FetchingSpinner />} */}
         <div className="table-wrapper custom-scroll">
-          {/* <TableLoader count={10} cols={4} /> */}
           <table>
             <thead>
               <tr>
@@ -69,77 +131,111 @@ const LevelTable = ({ setIsLevelEdit }) => {
               </tr>
             </thead>
             <tbody>
-              {/* <tr>
-                <td colSpan={100}>
-                  <IconNoData />
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={100}>
-                  <IconServerError />
-                </td>
-              </tr> */}
-
-              {result?.count > 0 &&
-                result.data.map((item, key) => (
-                  <tr key={key}>
-                    <td>{counter++}.</td>
-                    <td>
-                      {item.level_is_active === 1 ? (
-                        <Status text="Active" />
-                      ) : (
-                        <Status text="inactive" />
-                      )}
-                    </td>
-                    <td>{item.level_level}</td>
-                    <td>
-                      <ul className="table-action">
-                        {item.level_is_active ? (
-                          <>
-                            <li>
-                              <button className="tooltip" data-tooltip="Edit">
-                                <FilePenLine onClick={() => handleEdit(item)} />
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="tooltip"
-                                data-tooltip="Archive"
-                              >
-                                <Archive onClick={() => handleArchive(item)} />
-                              </button>
-                            </li>
-                          </>
-                        ) : (
-                          <>
-                            <li>
-                              <button
-                                className="tooltip"
-                                data-tooltip="Restore"
-                              >
-                                <ArchiveRestore
+              {/* LOADING */}
+              {(status === "pending" || result?.pages[0].data.length === 0) && (
+                <tr>
+                  <td colSpan="100%" className="p-10">
+                    {status === "pending" ? (
+                      <TableLoader cols={2} count={20} />
+                    ) : (
+                      <IconNoData />
+                    )}
+                  </td>
+                </tr>
+              )}
+              {/* ERROR */}
+              {error && (
+                <tr>
+                  <td colSpan="100%">
+                    <IconServerError />
+                  </td>
+                </tr>
+              )}
+              <></>
+              {/* RESULT */}
+              {result?.pages.map((page, pagekey) => (
+                <React.Fragment key={pagekey}>
+                  {page.data.map((item, key) => {
+                    return (
+                      <tr key={key} className="group relative cursor-pointer">
+                        <td className="text-center">{counter++}.</td>
+                        <td>
+                          {item.level_is_active ? (
+                            <Status text={"Active"} />
+                          ) : (
+                            <Status text={"Inactive"} />
+                          )}
+                        </td>
+                        <td>{item.level_level}</td>
+                        <td
+                          colSpan="100%"
+                          className="opacity-0 group-hover:opacity-100"
+                        >
+                          <div className="flex items-center justify-end gap-3 mr-4">
+                            {item.level_is_active == 1 ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Edit"
+                                  disabled={isFetching}
+                                  onClick={() => handleEdit(item)}
+                                >
+                                  <FaEdit />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Archive"
+                                  disabled={isFetching}
+                                  onClick={() => handleArchive(item)}
+                                >
+                                  <FaArchive />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Restore"
+                                  disabled={isFetching}
                                   onClick={() => handleRestore(item)}
-                                />
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="tool-tip"
-                                data-tooltip="Delete"
-                              >
-                                <Trash2 onClick={() => handleDelete(item)} />
-                              </button>
-                            </li>
-                          </>
-                        )}
-                      </ul>
-                    </td>
-                  </tr>
-                ))}
+                                >
+                                  <FaTrashRestoreAlt />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="tooltip"
+                                  data-tooltip="Delete"
+                                  disabled={isFetching}
+                                  onClick={() => handleDelete(item)}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
             </tbody>
           </table>
 
-          <LoadMore />
+          <div className="pb-10 text-center flex items-center ">
+            <Loadmore
+              fetchNextPage={fetchNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              hasNextPage={hasNextPage}
+              result={result?.pages[0]}
+              setPage={setPage}
+              page={page}
+              refView={ref}
+            />
+          </div>
         </div>
       </div>
 

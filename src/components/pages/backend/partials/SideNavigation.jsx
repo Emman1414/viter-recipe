@@ -29,6 +29,7 @@ const SideNavigation = ({ menu }) => {
       slug: "/admin/level",
       icon: <Component size={16} />,
     },
+    
   ];
   return (
     <>

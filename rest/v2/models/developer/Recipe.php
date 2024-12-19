@@ -37,10 +37,10 @@ class Recipe
     public $recipe_start;
     public $recipe_total;
     public $recipe_search;
-    public $Category_total;
-    public $Category_search;
-    public $Level_total;
-    public $Level_search;
+    public $category_total;
+    public $category_search;
+    public $level_total;
+    public $level_search;
 
     public function __construct($db)
     {
@@ -50,7 +50,7 @@ class Recipe
         $this->tblrecipe = "recipe";
     }
 
- public function create()
+    public function create()
     {
         try {
             $sql = "insert into {$this->tblrecipe} ";
@@ -107,15 +107,15 @@ class Recipe
     public function readAll()
     {
         try {
-          $sql = "select * ";
-          $sql .= "from ";
-          $sql .= "{$this->tblCategory} as readCategory, ";
-          $sql .= "{$this->tblLevel} as readLevel, ";
-          $sql .= "{$this->tblrecipe} as readRecipe ";
-          $sql .= "where readCategory.category_aid = readRecipe.recipe_category_id ";
-          $sql .= "and readLevel.level_aid = readRecipe.recipe_level_id ";
-          $sql .= "order by readRecipe.recipe_is_active desc, ";
-          $sql .= "readRecipe.recipe_aid asc ";
+            $sql = "select * ";
+            $sql .= "from ";
+            $sql .= "{$this->tblCategory} as readCategory, ";
+            $sql .= "{$this->tblLevel} as readLevel, ";
+            $sql .= "{$this->tblrecipe} as readRecipe ";
+            $sql .= "where readCategory.category_aid = readRecipe.recipe_category_id ";
+            $sql .= "and readLevel.level_aid = readRecipe.recipe_level_id ";
+            $sql .= "order by readRecipe.recipe_is_active desc, ";
+            $sql .= "readRecipe.recipe_aid asc ";
             $query = $this->connection->query($sql);
         } catch (PDOException $ex) {
             $query = false;
@@ -127,15 +127,15 @@ class Recipe
     public function readLimit()
     {
         try {
-          $sql = "select * ";
-          $sql .= "from ";
-          $sql .= "{$this->tblCategory} as readCategory, ";
-          $sql .= "{$this->tblLevel} as readLevel, ";
-          $sql .= "{$this->tblrecipe} as readRecipe ";
-          $sql .= "where readCategory.category_aid = readRecipe.recipe_category_id ";
-          $sql .= "and readLevel.level_aid = readRecipe.recipe_level_id ";
-          $sql .= "order by readRecipe.recipe_is_active desc, ";
-          $sql .= "readRecipe.recipe_aid asc ";
+            $sql = "select * ";
+            $sql .= "from ";
+            $sql .= "{$this->tblCategory} as readCategory, ";
+            $sql .= "{$this->tblLevel} as readLevel, ";
+            $sql .= "{$this->tblrecipe} as readRecipe ";
+            $sql .= "where readCategory.category_aid = readRecipe.recipe_category_id ";
+            $sql .= "and readLevel.level_aid = readRecipe.recipe_level_id ";
+            $sql .= "order by readRecipe.recipe_is_active desc, ";
+            $sql .= "readRecipe.recipe_aid asc ";
             $sql .= "limit :start, ";
             $sql .= ":total ";
             $query = $this->connection->prepare($sql);
@@ -153,9 +153,16 @@ class Recipe
     public function search()
     {
         try {
-            $sql = "select * from {$this->tblrecipe} ";
-            $sql .= "where recipe_title like :recipe_title ";
-            $sql .= "order by recipe_is_active desc ";
+            $sql = "select * ";
+            $sql .= "from ";
+            $sql .= "{$this->tblrecipe} as Recipe, ";
+            $sql .= "{$this->tblCategory} as Category, ";
+            $sql .= "{$this->tblLevel} as Level ";
+            $sql .= "where Category.category_aid = Recipe.recipe_category_id ";
+            $sql .= "and Level.level_aid = Recipe.recipe_level_id ";
+            $sql .= "and Recipe.recipe_title like :recipe_title ";
+            $sql .= "order by recipe_is_active desc, ";
+            $sql .= "recipe_title ";
             $query = $this->connection->prepare($sql);
             $query->execute([
                 "recipe_title" => "%{$this->recipe_search}%",
@@ -166,6 +173,54 @@ class Recipe
         return $query;
     }
 
+    public function filterActive()
+    {
+        try {
+            $sql = "select * ";
+            $sql .= "from ";
+            $sql .= "{$this->tblrecipe} as Recipe, ";
+            $sql .= "{$this->tblCategory} as Category, ";
+            $sql .= "{$this->tblLevel} as Level ";
+            $sql .= "where Category.category_aid = Recipe.recipe_category_id ";
+            $sql .= "and Level.level_aid = Recipe.recipe_level_id ";
+            $sql .= "and Recipe.recipe_title like :recipe_is_active ";
+            $sql .= "order by recipe_is_active desc, ";
+            $sql .= "recipe_title ";
+            $query = $this->connection->prepare($sql);
+            $query->execute([
+                "recipe_is_active" => $this->recipe_is_active,
+            ]);
+        } catch (PDOException $ex) {
+            $query = false;
+        }
+        return $query;
+    }
+
+
+
+    public function filterActiveSearch()
+    {
+        try {
+            $sql = "select * ";
+            $sql .= "from ";
+            $sql .= "{$this->tblrecipe} as Recipe, ";
+            $sql .= "{$this->tblCategory} as Category, ";
+            $sql .= "{$this->tblLevel} as Level ";
+            $sql .= "where Category.category_aid = Recipe.recipe_category_id ";
+            $sql .= "and Level.level_aid = Recipe.recipe_level_id ";
+            $sql .= "and Recipe.recipe_title like :recipe_is_active ";
+            $sql .= "order by recipe_is_active desc, ";
+            $sql .= "recipe_title ";
+            $query = $this->connection->prepare($sql);
+            $query->execute([
+                "recipe_is_active" => "$this->recipe_is_active",
+                "recipe_title" => "%{$this->recipe_search}%",
+            ]);
+        } catch (PDOException $ex) {
+            $query = false;
+        }
+        return $query;
+    }
 
     // read by id
     public function readById()
@@ -184,7 +239,7 @@ class Recipe
         return $query;
     }
 
-        // update
+    // update
     public function update()
     {
         try {

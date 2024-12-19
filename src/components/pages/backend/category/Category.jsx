@@ -3,14 +3,13 @@ import { Plus } from "lucide-react";
 import React from "react";
 import Footer from "../partials/Footer";
 import Header from "../partials/Header";
-import ModalError from "../partials/modals_Old/ModalError";
-import ModalValidation from "../partials/modals_Old/ModalValidation";
-import SearchBar from "../partials/SearchBar";
 import SideNavigation from "../partials/SideNavigation";
 import ToastSuccess from "../partials/ToastSuccess";
 import CategoryTable from "./CategoryTable";
 import ModalAddCategory from "./ModalAddCategory";
-import { StoreContext } from "@/components/store/storeContext";
+import { StoreContext } from "../../../store/storeContext";
+import ModalValidation from "../partials/modals/ModalValidation";
+import ModalError from "../partials/modals/ModalError";
 
 const Category = () => {
   const { dispatch, store } = React.useContext(StoreContext);

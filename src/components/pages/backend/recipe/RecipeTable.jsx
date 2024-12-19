@@ -1,42 +1,77 @@
-import {
-  setIsAdd,
-  setIsConfirm,
-  setIsDelete,
-} from "@/components/store/storeAction";
+import { setIsAdd, setIsDelete } from "@/components/store/storeAction";
 
 import { Archive, ArchiveRestore, FilePenLine, Trash2 } from "lucide-react";
 import React from "react";
-import useQueryData from "../../../custom-hook/useQueryData";
+import { setIsArchive, setIsRestore } from "../../../store/storeAction";
+import { StoreContext } from "../../../store/storeContext";
 import IconNoData from "../partials/IconNoData";
 import IconServerError from "../partials/IconServerError";
 import LoadMore from "../partials/LoadMore";
-import ModalConfirm from "../partials/modals/ModalConfirm";
-import ModalDelete from "../partials/modals/ModalDelete";
-import SpinnerTable from "../partials/spinners/SpinnerTable";
+import { queryDataInfinite } from "@/components/helpers/queryDataInfinite";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 import Status from "../partials/Status";
 import TableLoader from "../partials/TableLoader";
-import { setIsArchive, setIsRestore } from "../../../store/storeAction";
-import ModalRestore from "../partials/modals/ModalRestore";
-import { StoreContext } from "../../../store/storeContext";
 import ModalArchive from "../partials/modals/ModalArchive";
+import ModalDelete from "../partials/modals/ModalDelete";
+import ModalRestore from "../partials/modals/ModalRestore";
+import SearchBarWithFilterStatus from "../partials/SearchBarWithFilterStatus";
+import Loadmore from "../partials/LoadMore";
+import { FaArchive, FaEdit, FaTrash, FaTrashRestoreAlt } from "react-icons/fa";
 
 const RecipeTable = ({ setItemEdit }) => {
+  const [id, setId] = React.useState("");
   const { store, dispatch } = React.useContext(StoreContext);
-  // const [isActive, setIsActive] = React.useState(0);
-  const [id, setId] = React.useState(null);
+  const [isFilter, setIsFilter] = React.useState(false);
+  const [onSearch, setOnSearch] = React.useState(false);
+  const [statusFilter, setStatusFilter] = React.useState("");
+  const search = React.useRef({ value: "" });
+  const [page, setPage] = React.useState(1);
+  const { ref, inView } = useInView(); // need installation
 
-  const {
-    isLoading,
-    isFetching,
-    error,
-    data: result,
-  } = useQueryData(
-    `/v2/recipe`, // endpoint
-    "get", // method
-    "recipe"
-  );
+
 
   let counter = 1;
+
+  const {
+    data: result,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["recipe", onSearch, isFilter, statusFilter],
+    queryFn: async ({ pageParam = 1 }) =>
+      await queryDataInfinite(
+        "/v2/recipe/search",
+        `/v2/recipe/page/${pageParam}`,
+        isFilter || store.isSearch,
+        {
+          isFilter,
+          statusFilter,
+          searchValue: search?.current.value,
+          id: "",
+        } // payload
+      ),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total) {
+        return lastPage.page + lastPage.count;
+      }
+      return;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  React.useEffect(() => {
+    if (inView) {
+      setPage((prev) => prev + 1);
+      fetchNextPage();
+    }
+  }, [inView]);
+
+  // handle
 
   const handleEdit = (item) => {
     dispatch(setIsAdd(true));
@@ -59,54 +94,23 @@ const RecipeTable = ({ setItemEdit }) => {
 
   return (
     <>
-      <div className="p-4 bg-secondary rounded-md mt-10 border border-line relative">
-        {/* {!isLoading || (isFetching && <SpinnerTable />)}{" "} */}
-        <div className="table-wrapper custom-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Status</th>
-                <th className="w-[20%]">Title</th>
-                <th className="w-[10%]">Category</th>
-                <th>Level</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {((isLoading && !isFetching) || result?.data.length === 0) && (
-                <tr>
-                  <td colSpan="100%">
-                    {isLoading ? (
-                      <TableLoader count={30} cols={6} />
-                    ) : (
-                      <IconNoData />
-                    )}
-                  </td>
-                </tr>
-              )}
+      <div className="mt-5">
+        <SearchBarWithFilterStatus
+          search={search}
+          dispatch={dispatch}
+          store={store}
+          result={result}
+          isFetching={isFetching}
+          setOnSearch={setOnSearch}
+          onSearch={onSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          setIsFilter={setIsFilter}
+          setPage={setPage}
+        />
+      </div>
 
-              {error && (
-                <tr>
-                  <td colSpan="100%">
-                    <IconServerError />
-                  </td>
-                </tr>
-              )}
-
-              {result?.count > 0 &&
-                result.data.map((item, key) => {
-                  return (
-                    <tr key={key}>
-                      <td>{counter++}.</td>
-                      <td>
-                        {item.recipe_is_active === 1 ? (
-                          <Status text="Active" />
-                        ) : (
-                          <Status text="Inactive" />
-                        )}
-                      </td>
-                      <td className="capitalize" title={`${item.recipe_title}`}>
+      {/* <td className="capitalize" title={`${item.recipe_title}`}>
                         {item.recipe_title}
                       </td>
                       <td
@@ -120,62 +124,145 @@ const RecipeTable = ({ setItemEdit }) => {
                         title={`${item.recipe_level_id}`}
                       >
                         {item.level_level}
-                      </td>
+                      </td> */}
 
-                      <td>
-                        <ul className="table-action">
-                          {item.recipe_is_active === 1 ? (
-                            <>
-                              <li>
+      <div className="p-4 bg-secondary rounded-md mt-10 border border-line relative">
+        {/* {isFetchings && !isLoading && <FetchingSpinner />} */}
+        <div className="table-wrapper custom-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Status</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Level</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* LOADING */}
+              {(status === "pending" || result?.pages[0].data.length === 0) && (
+                <tr>
+                  <td colSpan="100%" className="p-10">
+                    {status === "pending" ? (
+                      <TableLoader cols={2} count={20} />
+                    ) : (
+                      <IconNoData />
+                    )}
+                  </td>
+                </tr>
+              )}
+              {/* ERROR */}
+              {error && (
+                <tr>
+                  <td colSpan="100%">
+                    <IconServerError />
+                  </td>
+                </tr>
+              )}
+              <></>
+              {/* RESULT */}
+              {result?.pages.map((page, pagekey) => (
+                <React.Fragment key={pagekey}>
+                  {page.data.map((item, key) => {
+                    return (
+                      <tr key={key} className="group relative cursor-pointer">
+                        <td className="text-center">{counter++}.</td>
+                        <td>
+                          {item.recipe_is_active ? (
+                            <Status text={"Active"} />
+                          ) : (
+                            <Status text={"Inactive"} />
+                          )}
+                        </td>
+                        <td
+                          className="capitalize"
+                          title={`${item.recipe_title}`}
+                        >
+                          {item.recipe_title}
+                        </td>
+                        <td
+                          className="capitalize"
+                          title={`${item.recipe_category_id}`}
+                        >
+                          {item.category_title}
+                        </td>
+                        <td
+                          className="capitalize"
+                          title={`${item.recipe_level_id}`}
+                        >
+                          {item.level_level}
+                        </td>
+                        <td
+                          colSpan="100%"
+                          className="opacity-0 group-hover:opacity-100"
+                        >
+                          <div className="flex items-center justify-end gap-3 mr-4">
+                            {item.recipe_is_active == 1 ? (
+                              <>
                                 <button
+                                  type="button"
                                   className="tooltip"
                                   data-tooltip="Edit"
+                                  disabled={isFetching}
                                   onClick={() => handleEdit(item)}
                                 >
-                                  <FilePenLine />
+                                  <FaEdit />
                                 </button>
-                              </li>
-                              <li>
                                 <button
+                                  type="button"
                                   className="tooltip"
                                   data-tooltip="Archive"
+                                  disabled={isFetching}
                                   onClick={() => handleArchive(item)}
                                 >
-                                  <Archive />
+                                  <FaArchive />
                                 </button>
-                              </li>
-                            </>
-                          ) : (
-                            <>
-                              <li>
+                              </>
+                            ) : (
+                              <>
                                 <button
+                                  type="button"
                                   className="tooltip"
                                   data-tooltip="Restore"
+                                  disabled={isFetching}
                                   onClick={() => handleRestore(item)}
                                 >
-                                  <ArchiveRestore />
+                                  <FaTrashRestoreAlt />
                                 </button>
-                              </li>
-                              <li>
                                 <button
-                                  className="tool-tip"
+                                  type="button"
+                                  className="tooltip"
                                   data-tooltip="Delete"
+                                  disabled={isFetching}
                                   onClick={() => handleDelete(item)}
                                 >
-                                  <Trash2 />
+                                  <FaTrash />
                                 </button>
-                              </li>
-                            </>
-                          )}
-                        </ul>
-                      </td>
-                    </tr>
-                  );
-                })}
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
             </tbody>
           </table>
 
-          <LoadMore />
+          <div className="pb-10 text-center flex items-center ">
+            <Loadmore
+              fetchNextPage={fetchNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              hasNextPage={hasNextPage}
+              result={result?.pages[0]}
+              setPage={setPage}
+              page={page}
+              refView={ref}
+            />
+          </div>
         </div>
       </div>
 

@@ -15,6 +15,7 @@ const initVal = {
   isAdd: false,
   isView: false,
   isAnimating: true,
+  isSearch: false,
 };
 
 const StoreContext = React.createContext();
