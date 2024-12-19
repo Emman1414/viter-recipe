@@ -32,8 +32,8 @@ const LatestRecipe = ({ result }) => {
               />
               <div className="absolute md:-bottom-24 left-5 text-white group-hover:bottom-5 group-hover:opacity-100 transition-all">
                 <ul className="text-sm flex gap-4 items-center">
-                  <li>{item.recipe_pre_time}</li>
-                  <li>{item.recipe_serving}</li>
+                  <li>{item.recipe_prep_time}</li>
+                  <li>{item.recipe_serving} servings</li>
                 </ul>
                 <h4 className="mb-2 font-light">{item.recipe_title}</h4>
                 <Link to="/" className="font-bold">

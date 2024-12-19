@@ -12,8 +12,6 @@ import { Form, Formik } from "formik";
 import { X } from "lucide-react";
 import React from "react";
 import * as Yup from "yup";
-import { StoreContext } from "../../../store/storeContext";
-import ModalWrapper from "../partials/modals/ModalWrapper";
 import SpinnerButton from "../partials/spinners/SpinnerButton";
 
 const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
@@ -47,7 +45,7 @@ const ModalAddCategory = ({ isCategoryEdit, setIsCategoryEdit }) => {
         isCategoryEdit
           ? `/v2/category/${isCategoryEdit.category_aid}`
           : "/v2/category",
-        isCategoryEdit ? "PUT" : "POST",
+      isCategoryEdit ? "PUT" : "POST",
         values
       ),
     onSuccess: (data) => {

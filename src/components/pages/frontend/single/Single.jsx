@@ -34,8 +34,7 @@ const Single = () => {
           <div className="py-24">
             <img
               src={`${imgPath}/${
-                getSingleRecipe() !== undefined &&
-                getSingleRecipe()[0].recipe_image
+                getSingleRecipe() !== undefined && getSingleRecipe()[0].recipe_image
               }`}
               alt=""
               className="h-[700px] w-full object-cover mb-5"
