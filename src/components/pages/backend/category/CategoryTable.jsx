@@ -1,4 +1,3 @@
-
 import {
   setIsAdd,
   setIsArchive,
@@ -20,6 +19,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { StoreContext } from "../../../store/storeContext";
 import TableLoader from "../partials/TableLoader";
 import { FaArchive, FaEdit, FaTrash, FaTrashRestoreAlt } from "react-icons/fa";
+import IconNoData from "../partials/IconNoData";
 
 const CategoryTable = ({ setIsCategoryEdit }) => {
   const [id, setIsId] = React.useState("");

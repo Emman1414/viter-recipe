@@ -3,12 +3,12 @@ import { ChevronDown, Dot } from "lucide-react";
 import { getFoodByCategory } from "./function";
 import IconNoData from "../partials/IconNoData";
 
-const DashboardAccordion = ({ title, resultFood, item, foodItems }) => {
+const DashboardAccordion = ({ title, resultRecipe, item, foodItems }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   // const getCardDetails = menus.filter(
   //   (item) => item.menu_category === filterby
   // );
-const foodItem = getFoodByCategory(item.category_aid, resultFood);
+  const foodItem = getFoodByCategory(item.category_aid, resultRecipe);
   // const activeFood = foodItem
   //   ?.filter((item) => item.food_is_active == 1)
   //   .reduce((prev, cur) => prev + 1, 0);
@@ -44,9 +44,13 @@ const foodItem = getFoodByCategory(item.category_aid, resultFood);
                 <li className="flex items-center" key={key}>
                   <Dot
                     size={30}
-                    className={`${item.food_is_active == 1 ? "text-success" : "text-gray"}`}
+                    className={`${
+                      item.level_level === "Easy" ? "text-success" : ""
+                    } : ${
+                      item.level_level === "Moderate" ? "text-info" : ""
+                    } : ${item.level_level === "Difficult" ? "text-alert" : ""}`}
                   />
-                  {item.food_title}
+                  {item.recipe_title}
                 </li>
               ))}
           </ul>

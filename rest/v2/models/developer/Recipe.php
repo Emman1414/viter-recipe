@@ -173,6 +173,8 @@ class Recipe
         return $query;
     }
 
+
+
     public function filterActive()
     {
         try {
@@ -183,7 +185,7 @@ class Recipe
             $sql .= "{$this->tblLevel} as Level ";
             $sql .= "where Category.category_aid = Recipe.recipe_category_id ";
             $sql .= "and Level.level_aid = Recipe.recipe_level_id ";
-            $sql .= "and Recipe.recipe_title like :recipe_is_active ";
+            $sql .= "and Recipe.recipe_is_active like :recipe_is_active ";
             $sql .= "order by recipe_is_active desc, ";
             $sql .= "recipe_title ";
             $query = $this->connection->prepare($sql);
@@ -198,6 +200,9 @@ class Recipe
 
 
 
+
+
+
     public function filterActiveSearch()
     {
         try {
@@ -208,19 +213,26 @@ class Recipe
             $sql .= "{$this->tblLevel} as Level ";
             $sql .= "where Category.category_aid = Recipe.recipe_category_id ";
             $sql .= "and Level.level_aid = Recipe.recipe_level_id ";
-            $sql .= "and Recipe.recipe_title like :recipe_is_active ";
+            $sql .= "and Recipe.recipe_is_active like :recipe_is_active ";
+            $sql .= "and Recipe.recipe_title like :recipe_title ";
             $sql .= "order by recipe_is_active desc, ";
             $sql .= "recipe_title ";
             $query = $this->connection->prepare($sql);
             $query->execute([
                 "recipe_is_active" => "$this->recipe_is_active",
                 "recipe_title" => "%{$this->recipe_search}%",
+
+
             ]);
         } catch (PDOException $ex) {
             $query = false;
         }
         return $query;
     }
+
+
+
+
 
     // read by id
     public function readById()

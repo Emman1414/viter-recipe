@@ -1,6 +1,7 @@
-export const getFoodByCategory = (categoryId, resultRecipe) => {
+export const getRecipeByCategory = (categoryId, resultRecipe) => {
   let result = [];
 
+  // push
   resultRecipe?.data.map((item) => {
     if (Number(categoryId) === Number(item.category_aid)) {
       result.push(item);
@@ -10,52 +11,35 @@ export const getFoodByCategory = (categoryId, resultRecipe) => {
   return result;
 };
 
-export const getCategoryPrices = (resultCategory, resultRecipe) => {
-  let result = [];
-  let resultCategoryId = [];
+export const getCategoryItems = (resultCategory, resultRecipe, resultLevel) => {
+  let theKey = "Chicken";
+  let resultCategoryId = ["Easy", "Moderate",  "Difficult"];
 
   resultCategory?.data.map((categoryItem) => {
     let isResultCategoryExist = false;
 
+    //checks
     resultRecipe?.data.map((foodItem) => {
-      // BOOLEAN CHECK IF CATEGORY EXIST IN RESULT CATEGORY ARRAY
       isResultCategoryExist = resultCategoryId.includes(
         Number(categoryItem.category_aid)
       );
 
-      // GET INDEX OF EXISTING CATEGORY
+      // pang read ng index
       const getIndexCategoryItem = resultCategoryId.indexOf(
         foodItem.recipe_category_id
       );
 
-      //IF CATEGORY NOT EXIST ADD CATEGORY WITH PRICE
       if (
         Number(categoryItem.category_aid) ===
-          Number(foodItem.recipe_category_id) &&
+          Number(foodItem.recipe_category_aid) &&
         isResultCategoryExist === false
       ) {
-        resultCategoryId.push(categoryItem.category_aid);
+        resultCategoryId.push(categoryItem.recipe_aid);
         result.push({
           ...categoryItem,
-          menu_price: Number(foodItem.recipe_price),
+          Easy: Number(foodItem.recipe_title),
         });
       }
-
-      // IF CATEGORY EXIST ADD MENU PRICE TO CATEGORY
-      if (
-        Number(categoryItem.category_aid) ===
-          Number(foodItem.recipe_category_id) &&
-        isResultCategoryExist === true &&
-        getIndexCategoryItem >= 0
-      ) {
-        result[getIndexCategoryItem].menu_price += Number(foodItem.recipe_price);
-      }
     });
-
-    if (!isResultCategoryExist) {
-      result.push({ ...categoryItem, menu_price: 0 });
-      resultCategoryId.push(categoryItem.category_aid);
-    }
   });
-  return result;
 };

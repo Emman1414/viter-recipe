@@ -4,7 +4,6 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
-  Rectangle,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -18,7 +17,7 @@ import FetchingSpinner from "../partials/spinners/FetchingSpinner";
 import TableLoader from "../partials/TableLoader";
 import DashboardAccordion from "./DashboardAccordion";
 import DashboardCard from "./DashboardCard";
-import { getCategoryPrices } from "./function";
+import { getCategoryItems } from "./function";
 
 const Dashboard = () => {
   const {
@@ -43,7 +42,18 @@ const Dashboard = () => {
     "recipe" // key
   );
 
-  const tableData = getCategoryPrices(resultCategory, resultRecipe);
+  const {
+    isFetching: isFetchingLevel,
+    isLoading: isLoadingLevel,
+    error: errorLevel,
+    data: resultLevel,
+  } = useQueryData(
+    `/v2/level`, // endpoint
+    "get", // method
+    "level" // key
+  );
+
+  const tableData = getCategoryItems(resultCategory, resultRecipe);
 
   console.log(tableData);
 
@@ -53,7 +63,7 @@ const Dashboard = () => {
         <div className="layout-division">
           <SideNavigation menu="dashboard" />
           <main>
-            <Header title="Dashboard" subtitle="Welcome to Jollibee!" />
+            <Header title="Dashboard" subtitle="Welcome to Home Recipes!" />
             <div className="p-5 overflow-y-auto custom-scroll">
               <div className="grid grid-cols-[1fr_400px] gap-5">
                 <div className="stats">
@@ -65,31 +75,37 @@ const Dashboard = () => {
                       <TableLoader col={1} count={15} />
                     ) : (
                       <>
-                        <ResponsiveContainer width={1200} height={300}>
-                          <h3>Menu Prices</h3>
+                        <ResponsiveContainer width={1000} height={400}>
+                          <h3>Inventory</h3>
                           <BarChart
                             width={1200}
                             height={250}
-                            // data={menus.slice(0, 10)}
                             data={tableData}
+                            // data={category_title.slice(0, 10)}
                             margin={{
-                              top: 10,
+                              top: 20,
                               right: 30,
                               left: 20,
                               bottom: 5,
                             }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
+                            {/* <XAxis dataKey="name" /> */}
                             <XAxis dataKey="category_title" />
                             <YAxis />
                             <Tooltip />
                             <Legend />
+                            {/* STATIC LAMANG */}
+                            <Bar dataKey="Easy" stackId="a" fill="#82ca9d" />
                             <Bar
-                              dataKey="menu_price"
-                              fill="#8884d8"
-                              activeBar={
-                                <Rectangle fill="pink" stroke="blue" />
-                              }
+                              dataKey="Moderate"
+                              stackId="a"
+                              fill="#3a1bf8"
+                            />
+                            <Bar
+                              dataKey="Difficult"
+                              stackId="a"
+                              fill="#f70505"
                             />
                           </BarChart>
                         </ResponsiveContainer>
@@ -101,7 +117,7 @@ const Dashboard = () => {
                       <FetchingSpinner />
                     )}
 
-                    <div className="grid grid-cols-4 gap-5 mt-20">
+                    <div className="grid grid-cols-4 gap-5">
                       {isLoadingCategory && <TableLoader cols={4} count={20} />}
                       {resultCategory?.count === 0 && <IconNoData />}
                       {resultCategory?.count > 0 &&
@@ -125,7 +141,7 @@ const Dashboard = () => {
                     resultCategory?.data.map((item, key) => {
                       const foodItems = resultRecipe?.data.filter(
                         (foodItems) =>
-                          foodItems.food_category_id == item.category_aid
+                          foodItems.recipe_category_id == item.category_aid
                       );
                       return (
                         <DashboardAccordion

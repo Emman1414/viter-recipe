@@ -17,6 +17,7 @@ import ModalRestore from "../partials/modals/ModalRestore";
 import SearchBarWithFilterStatus from "../partials/SearchBarWithFilterStatus";
 import Status from "../partials/Status";
 import TableLoader from "../partials/TableLoader";
+import IconNoData from "../partials/IconNoData";
 
 const LevelTable = ({ setIsLevelEdit }) => {
   const [id, setIsId] = React.useState("");
