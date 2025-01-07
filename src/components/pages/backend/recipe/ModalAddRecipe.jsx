@@ -28,7 +28,8 @@ const ModalAddRecipe = ({ itemEdit }) => {
   const queryClient = useQueryClient();
   const [value, setValue] = React.useState("");
 
-  const { uploadPhoto, handleChangePhoto, photo } = useUploadPhoto("/v2/upload-photo");
+  const { uploadPhoto, handleChangePhoto, photo } =
+    useUploadPhoto("/v2/upload-photo");
 
   const handleChange = (event) => {
     setValue(event.target.value);

@@ -1,5 +1,5 @@
 import React from "react";
-import { getFoodByCategory } from "./function";
+// import { getFoodByCategory } from "./function";
 
 const DashboardCard = ({ item, resultRecipe }) => {
   const foodItem = getFoodByCategory(item.category_aid, resultRecipe);

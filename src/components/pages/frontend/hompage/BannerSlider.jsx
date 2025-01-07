@@ -58,7 +58,7 @@ const BannerSlider = ({ result }) => {
                 to={`/recipe/single/${item.recipe_title.replaceAll(" ", "-")}`}
                 className="flex gap-3 items-center hover:text-orange group transition-all font-bold"
               >
-                View Full Recipe{" "}
+                View Full Recipe
                 <ArrowRightIcon
                   size={18}
                   className="opacity-0 -translate-x-3 transition-all group-hover:opacity-100 group-hover:translate-x-0 stroke-orange "

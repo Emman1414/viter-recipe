@@ -1,6 +1,6 @@
 import React from "react";
 import { ChevronDown, Dot } from "lucide-react";
-import { getFoodByCategory } from "./function";
+// import { getFoodByCategory } from "./function";
 import IconNoData from "../partials/IconNoData";
 
 const DashboardAccordion = ({ title, resultRecipe, item, foodItems }) => {
